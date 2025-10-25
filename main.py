@@ -8,6 +8,8 @@ def main():
     parser.add_argument("-p", "--path", default="/", help="The specific path to fuzz (e.g., /search)")
     parser.add_argument("-param", "--parameter", required=True, help="The name of the parameter to fuzz (e.g., query)")
     parser.add_argument("-n", "--num_payloads", type=int, default=100, help="Number of fuzzing payloads to send")
+    parser.add_argument("-m", "--method", default="GET", choices=["GET", "POST"], help="HTTP method to use for fuzzing (default: GET)")
+    parser.add_argument("-t", "--threads", type=int, default=5, help="Number of concurrent threads for fuzzing (default: 5)")
     
     args = parser.parse_args()
     
@@ -16,11 +18,13 @@ def main():
     print(f"Target: {args.base_url}")
     print(f"Path: {args.path}")
     print(f"Parameter: {args.parameter}")
+    print(f"Method: {args.method}")
+    print(f"Threads: {args.threads}")
     print(f"Number of Payloads: {args.num_payloads}")
     print("*" * 60)
     
-    fuzzer = WebFuzzer(args.base_url)
-    results = fuzzer.fuzz_parameter(args.path, args.parameter, args.num_payloads)
+    fuzzer = WebFuzzer(args.base_url, args.threads)
+    results = fuzzer.fuzz_parameter(args.path, args.parameter, args.num_payloads, args.method)
     
     print("\n" + "=" * 60)
     if results:

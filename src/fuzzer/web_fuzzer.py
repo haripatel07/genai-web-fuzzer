@@ -114,7 +114,6 @@ def check_response(response):
         if indicator in response_text:
             return "Medium - Error Information Disclosure"
     
-    # Default: No obvious vulnerability found
     return None
 
 class WebFuzzer:
@@ -229,7 +228,6 @@ class WebFuzzer:
                 }
                 
         except requests.exceptions.RequestException as e:
-            # Silently handle request errors in threads
             pass
             
         return None
