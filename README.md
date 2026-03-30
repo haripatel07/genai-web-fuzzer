@@ -172,7 +172,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 This tool is provided for educational and authorized security testing purposes only. The authors are not responsible for any misuse or damage caused by this software.
 
-## 🚀 Running with Docker
+## Running with Docker
 
 1. Build image:
 
@@ -192,7 +192,7 @@ docker run --rm -v $(pwd)/target:/app/input -v $(pwd)/results:/app/output ai-sma
 docker-compose up --build
 ```
 
-## ⚙️ CLI Usage
+## CLI Usage
 
 Run without Docker from the repository root:
 
@@ -206,13 +206,3 @@ Example:
 ```bash
 python main.py http://example.com -p /search -param query -n 100 -m GET -t 10
 ```
-
-### Is the project complete?
-
-The core fuzzer is implemented and runnable as a CLI tool. It has basic payload generation, vulnerability pattern matching, and multi-threaded execution. Remaining improvements for production readiness include:
-
-- Automatic output file writing (currently prints to stdout)
-- Structured logging + result persistence
-- Test coverage / integration tests
-- Safe execution mode, rate limiting, and target validation
-- Optionally, explicit config file support
