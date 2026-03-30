@@ -59,12 +59,15 @@ python main.py http://example.com/api -param query -t 10 -n 200
 
 ### Command Line Options
 
-- `base_url`: Target URL (required)
+- `base_url`: Target URL (required, or use `FUZZER_BASE_URL` env var)
 - `-p, --path`: Path to fuzz (default: "/")
-- `-param, --parameter`: Parameter name to fuzz (required)
+- `-param, --parameter`: Parameter name to fuzz (required, or use `FUZZER_PARAM` env var)
 - `-n, --num_payloads`: Number of payloads to send (default: 100)
 - `-m, --method`: HTTP method (GET or POST, default: GET)
 - `-t, --threads`: Number of concurrent threads (default: 5)
+- `-r, --rate-limit`: Max requests per second (default: 0, no limit)
+- `-o, --output-file`: Output JSON file for vulnerabilities (default: output/results.json)
+- `-c, --config`: Optional path to JSON config file
 
 ### Examples
 
@@ -76,7 +79,7 @@ python main.py http://testapp.com -p /search -param q -n 100
 python main.py http://testapp.com -p /login -param password -m POST -t 3 -n 50
 
 # High-throughput fuzzing
-python main.py http://api.example.com -p /v1/search -param query -t 20 -n 1000
+python main.py http://api.example.com -p /v1/search -param query -t 20 -n 1000 -r 25 -o output/results.json
 ```
 
 ## Project Structure
@@ -153,6 +156,14 @@ The fuzzer uses regex patterns and content analysis to detect vulnerabilities:
 3. Add tests for new functionality
 4. Submit a pull request
 
+### Running tests
+
+```bash
+pip install -r requirements.txt
+pip install pytest
+pytest
+```
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -160,3 +171,48 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Disclaimer
 
 This tool is provided for educational and authorized security testing purposes only. The authors are not responsible for any misuse or damage caused by this software.
+
+## 🚀 Running with Docker
+
+1. Build image:
+
+```bash
+docker build -t ai-smart-fuzzer .
+```
+
+2. Run (local target/input and output/results bind mounts):
+
+```bash
+docker run --rm -v $(pwd)/target:/app/input -v $(pwd)/results:/app/output ai-smart-fuzzer http://target.example.com -param q -n 50
+```
+
+3. Or start with Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+## ⚙️ CLI Usage
+
+Run without Docker from the repository root:
+
+```bash
+pip install -r requirements.txt
+python main.py <base_url> -param <parameter_name> [-p <path>] [-n <num_payloads>] [-m <GET|POST>] [-t <threads>]
+```
+
+Example:
+
+```bash
+python main.py http://example.com -p /search -param query -n 100 -m GET -t 10
+```
+
+### Is the project complete?
+
+The core fuzzer is implemented and runnable as a CLI tool. It has basic payload generation, vulnerability pattern matching, and multi-threaded execution. Remaining improvements for production readiness include:
+
+- Automatic output file writing (currently prints to stdout)
+- Structured logging + result persistence
+- Test coverage / integration tests
+- Safe execution mode, rate limiting, and target validation
+- Optionally, explicit config file support

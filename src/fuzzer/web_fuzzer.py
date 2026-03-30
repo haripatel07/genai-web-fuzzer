@@ -120,15 +120,34 @@ class WebFuzzer:
     """
     Manages the fuzzing process against a target URL.
     """
-    def __init__(self, base_url, max_workers=5):
+    def __init__(self, base_url, max_workers=5, rate_limit=0):
         self.base_url = base_url
-        self.payload_generator = PayloadGenerator() # Use our generator
+        self.payload_generator = PayloadGenerator()  # Use our generator
         self.max_workers = max_workers
-        self.session = requests.Session() # Use a session for potential cookie handling
+        self.rate_limit = max(0, float(rate_limit) if rate_limit is not None else 0)
+        self.min_delay = 1.0 / self.rate_limit if self.rate_limit > 0 else 0
+
+        self.session = requests.Session()  # Use a session for potential cookie handling
         self.session.headers.update({
             'User-Agent': 'AI-Smart-Fuzzer/0.1'
         })
+
         self.lock = threading.Lock()  # For thread-safe result collection
+        self.rate_lock = threading.Lock()
+        self.last_request_time = 0.0
+
+    def _apply_rate_limit(self):
+        """Apply a global rate limit across threads."""
+        if self.min_delay <= 0:
+            return
+
+        with self.rate_lock:
+            now = time.time()
+            elapsed = now - self.last_request_time
+            wait_time = self.min_delay - elapsed
+            if wait_time > 0:
+                time.sleep(wait_time)
+            self.last_request_time = time.time()
 
     def fuzz_parameter(self, path, param_name, num_payloads=50, method='GET'):
         """
@@ -202,12 +221,15 @@ class WebFuzzer:
             dict or None: Vulnerability details if found, None otherwise.
         """
         try:
+            # Rate limiting (global across threads)
+            self._apply_rate_limit()
+
             # Create a new session for each thread to avoid issues
             session = requests.Session()
             session.headers.update({
                 'User-Agent': 'AI-Smart-Fuzzer/0.1'
             })
-            
+
             if method == 'GET':
                 params = {param_name: payload}
                 response = session.get(target_url, params=params, timeout=5)
